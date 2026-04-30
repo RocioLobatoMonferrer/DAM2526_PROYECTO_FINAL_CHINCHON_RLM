@@ -105,7 +105,7 @@ public class Entity implements IEntity {
 	}
 
 	/**
-	 * Método para ordenar las cartas de la mano de los jugadores
+	 * Método para ordenar las cartas de la mano de las entidades
 	 */
 
 	private void orderDeckCard() {
@@ -119,7 +119,7 @@ public class Entity implements IEntity {
 	@Override
 	public boolean validateCombination(List<Card> cards, int option) {
 		return switch (option) {
-		case 1 -> isGroup(cards);
+		case 1 -> isSeries(cards);
 		case 2 -> isStraight(cards);
 		case 3 -> isChichon(cards);
 		default -> false;
@@ -134,7 +134,7 @@ public class Entity implements IEntity {
 	 * @return true/false si la combinación es correcta
 	 */
 
-	private boolean isGroup(List<Card> cards) {
+	private boolean isSeries(List<Card> cards) {
 		CardType type = cards.get(0).type();
 		if (cards.size() < 3) {
 			return false;

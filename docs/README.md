@@ -32,10 +32,125 @@ Solo ganará el último que quede en pie
 
 ## FUNCIONAMIENTO DEL PROGRAMA
 
+[Aquí podrás encontrar las clases que se utilizaron para el proyecto]()
+
 ## DIAGRAMA DE CLASE (UML)
 
 ## ESTRUCTURA DEL PROYECTO
 
+Este proyecto está compuesto por las siguientes carpetas: 
+
+- docs: Carpeta en la que se almacenan documentos de información importante para el proyecto, como el diagrama de clase, el readme, entre otros...
+
+- src: Carpeta en la que se encuentra el códgio fuente del juego. Dentro de ella encontramos:
+    - app: Aquí encontraremos las clases que llevan el flujo de la partida y funciones para la comunicación y la visualización del usuario
+    - dominio: Aquí encontraremos las clases fundamentales para la partida, es decir, la baraja, los jugadores...
+    - tests: Aquí encontraremos las distintas pruebas que se han realizado a las clases del proyecto
+
+El resto de carpetas y archivos son fundamentales para el funcionamiento del programa, a excepción de .gitignore
+
 ## PRUEBAS UNITARIAS CON JUnit 5
 
-## PATRONES DE DISEÑOS UTILIZADOS
+## PATRONES DE DISEÑOS 
+
+Para este proyecto, se han utilizado patrones de diseño para facilitar la reutilización, hacerlo más mantenible y reducir el acomplamiento del código. 
+
+Antes de ver cuales son los patrones de diseño utilizados, debemos saber que un patrón de diseño es uns solución reutilizable y general a un problema común en el desarrollo de software, por lo tanto, es muy útil usarlo a la hora de entender el proyecto.
+
+Existen distintos patrones de diseño, pero para este proyecto encontraremos dos de estos: Singleton y Factory, los cuales son utilizados a la hora de la creación de objetos
+
+El patrón Singleton es conocido por garantizar que la clase tenga una sola instancia y proporcionar acceso global y en este proyecto lo podemos encontrar tanto en la clase "Menu" como en la clase "ConsoleInput":
+
+
+ConsoleInput:
+
+```java
+public class ConsoleInput {
+private Scanner kb;
+private static ConsoleInput instance;
+
+	public ConsoleInput() {
+		kb = new Scanner(System.in);
+	}
+
+	public static ConsoleInput getInstance() {
+		if (instance == null) {
+			instance = new ConsoleInput();
+		}
+		return instance;
+	}
+}
+```
+
+Menu: 
+
+```java
+public class Menu {
+private ConsoleInput ci;
+private static Menu instance;
+
+	public Menu() {
+		ci = ConsoleInput.getInstance();
+	}
+
+	public static Menu getInstance() {
+		if (instance == null) {
+			instance = new Menu();
+		}
+		return instance;
+	}
+}
+```
+
+Y así se vería a la hora de crear de instanciar la clase "Menu" en otra clase, en este caso, "Game":
+
+Game: 
+
+```java
+public class Game implements IGame {
+    
+public Game() {
+		players = new ArrayList<>();
+		menu = Menu.getInstance(); // Menu
+		ci = ConsoleInput.getInstance(); // ConsoleInput 
+		factory = new FactoryEntity();
+		deckCard = new DeckCard();
+	}
+}
+```
+
+
+Con respecto al patrón Factory, es conocido por ser un patrón que delega la creación de objetos en una clase fábrica para que el cliente no decida qué objeto crear y en este proyecto lo podemos encontrar con la clase "Entity":
+
+FactoryEntity:
+
+```java
+public class FactoryEntity {
+
+	public Entity createEntity(boolean type, String nickname) {
+		if (type) {
+			return new Entity(nickname);
+		} else {
+			return new Cpu(nickname);
+		}
+	}
+}
+```
+
+Y así se vería a la hora de crear de instanciar la clase "FactoryEntity" en otra clase, en este caso, "Game":
+
+Game: 
+
+```java
+public class Game implements IGame {
+    
+public Game() {
+		players = new ArrayList<>();
+		menu = Menu.getInstance(); 
+		ci = ConsoleInput.getInstance();
+		factory = new FactoryEntity(); // FactoryEntity
+		deckCard = new DeckCard();
+	}
+}
+```
+
