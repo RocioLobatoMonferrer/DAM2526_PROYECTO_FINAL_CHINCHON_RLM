@@ -99,6 +99,16 @@ public class Menu {
 	}
 
 	/**
+	 * Muestra que turno se encuentran los jugadores
+	 * 
+	 * @param turn El número del turno en cuestión
+	 */
+
+	public void showTurn(int turn) {
+		ci.writeLine(String.format("        TURNO %d\n   ______________\n", turn));
+	}
+
+	/**
 	 * Método que muestra la mano del jugador
 	 * 
 	 * @param player Jugador en concreto
@@ -179,6 +189,39 @@ public class Menu {
 	public String listCards() {
 		ci.writeLine("Introduzca los índices de las cartas con espacios que deseas combinar.\nEjemplo: (1 2 3) ");
 		return ci.readEmptyString();
+	}
+
+	public int selectClosingCard() {
+		return ci.readIntInRange(1, 2, "Seleccione si desea descartar la primera o la segunda crta para cerrar:");
+	}
+
+	/**
+	 * TODO
+	 * 
+	 * @param card
+	 */
+
+	public void showClosingCard(String card) {
+		ci.writeLine(String.format("Descartas %s para cerrar la ronda.", card));
+	}
+
+	/**
+	 * TODO
+	 */
+
+	public void showPerfectClosing() {
+		ci.writeLine("¡Cierre perfecto! -10 puntos.");
+	}
+
+	/**
+	 * TODO
+	 * 
+	 * @param player
+	 * @param points
+	 */
+
+	public void showRoundScore(IEntity player, int points) {
+		ci.writeLine(String.format("%s (%s%d esta ronda)", player.toString(), points < 0 ? "" : "+", points));
 	}
 
 	/**

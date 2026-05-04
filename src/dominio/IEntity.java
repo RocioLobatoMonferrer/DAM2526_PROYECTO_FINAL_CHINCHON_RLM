@@ -72,10 +72,37 @@ public interface IEntity {
 	boolean validateCombination(List<Card> cards, int option);
 
 	/**
-	 * Método que muestra la mano de la entidad
+	 * Método que devuelve la mano de la entidad
 	 * 
 	 * @return Mano de la entidad
 	 */
 
 	List<Card> getHand();
+
+	/**
+	 * Método que devuelve la mano temporal de la entidad
+	 * 
+	 * @return Mano temporal de la entidad
+	 */
+
+	List<Card> getTempHand();
+
+	/**
+	 * TODO
+	 */
+
+	void startTempMode();
+
+	/**
+	 * TODO
+	 */
+
+	void endTempMode();
+
+	/**
+	 * TODO
+	 * 
+	 * @param points
+	 */
+	void addScore(int points);
 }

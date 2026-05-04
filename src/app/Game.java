@@ -1,6 +1,7 @@
 package app;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import dominio.Card;
@@ -19,7 +20,6 @@ public class Game implements IGame {
 	private List<IEntity> players;
 	private IDeckCard deckCard;
 	private Menu menu;
-	private ConsoleInput ci;
 	private FactoryEntity factory;
 	private int maxPoints;
 	private boolean canClose;
@@ -32,7 +32,6 @@ public class Game implements IGame {
 	public Game() {
 		players = new ArrayList<>();
 		menu = Menu.getInstance();
-		ci = ConsoleInput.getInstance();
 		factory = new FactoryEntity();
 		deckCard = new DeckCard();
 	}
@@ -95,10 +94,12 @@ public class Game implements IGame {
 
 	@Override
 	public void startGame() {
+		players.clear();
 		preparePlayer();
 		prepareDeck(players.size());
 
 		for (int i = 0; i < players.size(); i++) {
+			players.get(i).clearHand();
 			for (int j = 0; j < 7; j++) {
 				players.get(i).draw(deckCard.drawDeck());
 			}
@@ -112,25 +113,30 @@ public class Game implements IGame {
 	 */
 
 	private void startRound() { /* TODO: Decidir quien es el ganador */
-		int turn = 1;
+		int turn = 1, closerIndex = -1;
 		IEntity player;
 		boolean gameOver = false;
 		canClose = false;
 
-		while (!gameOver) {
-			ci.writeLine(String.format("        TURNO %d\n   ______________\n", turn));
+		while (closerIndex == -1) {
+			menu.showTurn(turn);
+			if (turn >= 2) {
+				canClose = true;
+			}
+
 			for (int i = 0; i < players.size(); i++) {
+
 				player = players.get(i);
 
-				startTurn(player);
-
-				if (turn >= 2) {
-					canClose = true;
+				if (startTurn(player)) {
+					closerIndex = i;
+					i = players.size();
 				}
 			}
 			turn++;
 		}
 
+		roundScore(closerIndex);
 	}
 
 	/**
@@ -162,39 +168,40 @@ public class Game implements IGame {
 	// TODO: Terminar esta madre
 
 	private boolean closeTurn(IEntity player) {
-		List<Integer> indexes;
-		List<Card> selectedCards, remaining;
-		int combination, points, valueCard;
-		Card leftover;
 
-		indexes = askForIndexes(player);
-		combination = menu.selectCombination();
-
-		if (indexes.isEmpty()) {
-			menu.errorCombination();
-			return false;
-		}
-
-		selectedCards = getCardsFromIndexes(player, indexes);
-
-		if (!player.validateCombination(selectedCards, combination)) {
-			menu.errorCombination();
-			return false;
-		}
-
-		if (combination == 3 && indexes.size() == 7) {
+		if (combinationLoop(player)) {
+			menu.showPerfectClosing();
+			player.getHand().clear();
+			player.endTempMode();
 			return true;
 		}
 
-		remaining = getRemainingCards(player, indexes);
-		points = player.calculateScore(remaining);
+		List<Card> remaining = player.getTempHand();
+		int points = player.calculateScore(remaining), valueCard, index;
+		Card leftover;
+
+		if (remaining.isEmpty()) {
+			menu.showPerfectClosing();
+			player.getHand().clear();
+			player.endTempMode();
+			return true;
+		}
 
 		if (points >= maxPoints) {
+			player.endTempMode();
 			menu.errorPoints();
 			return false;
 		}
 
-		if (remaining.isEmpty()) {
+		if (remaining.size() == 2) {
+			menu.showHand(player);
+			index = menu.selectClosingCard() - 1;
+			leftover = remaining.get(index);
+			deckCard.addCardInDiscard(leftover);
+			player.getHand().clear();
+			player.getHand().addAll(remaining);
+			player.getHand().remove(leftover);
+			player.endTempMode();
 			return true;
 		}
 
@@ -203,53 +210,41 @@ public class Game implements IGame {
 			valueCard = leftover.type().getScoreValue();
 
 			if (valueCard >= 1 && valueCard <= 5) {
+				menu.showClosingCard(leftover.toString());
+				deckCard.addCardInDiscard(leftover);
+				player.getHand().clear();
+				player.getHand().addAll(remaining);
+				player.getHand().remove(leftover);
+				player.endTempMode();
 				return true;
 			}
 		}
 
+		player.endTempMode();
 		menu.errorCombination();
 		return false;
-
 	}
 
 	/**
 	 * Método que busca las cartas combinadas del jugador dependiendo de su índice
 	 * 
-	 * @param player  Jugador
+	 * @param hand    Mano del jugador
 	 * @param indexes Índices
 	 * @return
 	 */
 
 	// TODO: Terminar esta madre
 
-	private List<Card> getCardsFromIndexes(IEntity player, List<Integer> indexes) {
+	private List<Card> getCardsFromIndexes(List<Card> hand, List<Integer> indexes) {
 		List<Card> cards = new ArrayList<>();
 
 		for (int i : indexes) {
-			cards.add(player.getHand().get(i));
+			if (i >= 0 && i < hand.size()) {
+				cards.add(hand.get(i));
+			}
 		}
 
 		return cards;
-	}
-
-	/**
-	 * Método que busca las cartas sobrantes que no fueron combinadas por el jugador
-	 * dependiendo de su índice
-	 * 
-	 * @param player  Jugador
-	 * @param indexes Índices
-	 * @return
-	 */
-
-	// TODO: Terminar esta madre
-
-	private List<Card> getRemainingCards(IEntity player, List<Integer> indexes) {
-		List<Card> remaining = new ArrayList<>(player.getHand());
-		List<Card> selected = getCardsFromIndexes(player, indexes);
-
-		remaining.removeAll(selected);
-
-		return remaining;
 	}
 
 	/**
@@ -279,7 +274,7 @@ public class Game implements IGame {
 
 				int value = Integer.parseInt(p);
 
-				if (value < 1 || value > 8) {
+				if (value < 1 || value > player.getTempHand().size()) {
 					valid = false;
 				} else {
 					index = value - 1;
@@ -302,6 +297,95 @@ public class Game implements IGame {
 		}
 
 		return indexes;
+	}
+
+	/**
+	 * 
+	 * @param player
+	 */
+
+	private boolean combinationLoop(IEntity player) {
+		player.startTempMode();
+		List<Integer> indexes, sortedIndexes;
+		List<Card> selectedCards;
+		int combination;
+		boolean canContinue = true, combinationValid;
+
+		while (canContinue) {
+
+			combinationValid = false;
+
+			while (!combinationValid) {
+
+				indexes = askForIndexes(player);
+
+				if (indexes.isEmpty()) {
+					combinationValid = true;
+					canContinue = false;
+
+				} else {
+
+					combination = menu.selectCombination();
+					selectedCards = getCardsFromIndexes(player.getTempHand(), indexes);
+
+					if (!player.validateCombination(selectedCards, combination)) {
+						menu.errorCombination();
+
+					} else {
+
+						sortedIndexes = new ArrayList<>(indexes);
+						sortedIndexes.sort(Collections.reverseOrder());
+
+						for (int i : sortedIndexes) {
+							player.getTempHand().remove(i);
+						}
+
+						if (combination == 3 && selectedCards.size() == 7) {
+							return true;
+						}
+
+						combinationValid = true;
+					}
+				}
+			}
+
+			if (player.getTempHand().size() <= 2) {
+				canContinue = false;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * 
+	 * @param player
+	 */
+
+	private void declarePhase(IEntity player) {
+		combinationLoop(player);
+
+		player.getHand().clear();
+		player.getHand().addAll(player.getTempHand());
+		player.endTempMode();
+	}
+
+	/**
+	 * 
+	 * @param closerIndex
+	 * @param player
+	 */
+
+	private void roundScore(int closerIndex) {
+		int points;
+		for (int i = 0; i < players.size(); i++) {
+			IEntity player = players.get(i);
+			if (i != closerIndex) {
+				declarePhase(player);
+			}
+			points = player.calculateScore(player.getHand());
+			player.addScore(points);
+			menu.showRoundScore(player, points);
+		}
 	}
 
 	/**
@@ -336,7 +420,7 @@ public class Game implements IGame {
 
 	private boolean decisionPhase(IEntity player) {
 		int option;
-		boolean closed, decisionMade;
+		boolean decisionMade;
 
 		if (player instanceof ICpu) {
 			return false;
@@ -353,12 +437,8 @@ public class Game implements IGame {
 				if (!canClose) {
 					menu.errorClose();
 				} else {
-					closed = closeTurn(player);
-
-					if (closed) {
+					if (closeTurn(player)) {
 						return true;
-					} else {
-						decisionMade = true;
 					}
 				}
 

@@ -9,7 +9,7 @@ import java.util.List;
  */
 
 public class Entity implements IEntity {
-	private List<Card> hand;
+	private List<Card> hand, tempHand;
 	private EntityStatus status;
 	private String nickname;
 	private int score;
@@ -37,6 +37,33 @@ public class Entity implements IEntity {
 	}
 
 	/**
+	 * @inheritDoc
+	 */
+
+	@Override
+	public List<Card> getTempHand() {
+		return tempHand != null ? tempHand : hand;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+
+	@Override
+	public void startTempMode() {
+		tempHand = new ArrayList<>(hand);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+
+	@Override
+	public void endTempMode() {
+		tempHand = null;
+	}
+
+	/**
 	 * Método que indica el estado de la entidad
 	 * 
 	 * @return Estado de la entidad
@@ -54,6 +81,24 @@ public class Entity implements IEntity {
 
 	public void setStatus(EntityStatus status) {
 		this.status = status;
+	}
+
+	/**
+	 * 
+	 * @inheritDoc
+	 */
+
+	@Override
+	public void addScore(int points) {
+		score += points;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public int getScore() {
+		return score;
 	}
 
 	/**
@@ -83,6 +128,9 @@ public class Entity implements IEntity {
 	@Override
 	public void clearHand() {
 		hand.clear();
+		if (tempHand != null) {
+			tempHand.clear();
+		}
 	}
 
 	/**
@@ -217,15 +265,19 @@ public class Entity implements IEntity {
 
 	@Override
 	public String showHand() {
+		List<Card> source = getTempHand();
 		StringBuilder sb = new StringBuilder("");
 		sb.append(String.format("%s - ", nickname));
-		for (int i = 0; i < hand.size(); i++) {
-			if (i != 0 && i != hand.size() - 1) {
-				sb.append(", ");
-			} else if (i == hand.size() - 1) {
+		for (int i = 0; i < source.size(); i++) {
+
+			if (i == 0) {
+				sb.append("");
+			} else if (i == source.size() - 1) {
 				sb.append(" y ");
+			} else {
+				sb.append(", ");
 			}
-			sb.append(String.format("[%d]%s", i + 1, hand.get(i)));
+			sb.append(String.format("[%d] %s", i + 1, source.get(i)));
 		}
 		sb.append(".");
 		return sb.toString();

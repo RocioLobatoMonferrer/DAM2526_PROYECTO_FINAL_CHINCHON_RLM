@@ -219,7 +219,7 @@ public class ConsoleInput {
 	 */
 
 	public void writeError(String text) {
-		String.format("%s%s%s", "\u001B[31m", text, "\u001B[0m");
+		String.format("%s%s%s\n", "\u001B[31m", text, "\u001B[0m");
 	}
 
 }
