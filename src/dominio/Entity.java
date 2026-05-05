@@ -64,11 +64,10 @@ public class Entity implements IEntity {
 	}
 
 	/**
-	 * Método que indica el estado de la entidad
-	 * 
-	 * @return Estado de la entidad
+	 * @inheritDoc
 	 */
 
+	@Override
 	public EntityStatus getStatus() {
 		return status;
 	}
@@ -95,8 +94,10 @@ public class Entity implements IEntity {
 
 	/**
 	 * 
-	 * @return
+	 * @inheritDoc
 	 */
+
+	@Override
 	public int getScore() {
 		return score;
 	}

@@ -105,4 +105,18 @@ public interface IEntity {
 	 * @param points
 	 */
 	void addScore(int points);
+
+	/**
+	 * TODO
+	 * 
+	 * @return
+	 */
+	int getScore();
+
+	/**
+	 * Método que indica el estado de la entidad
+	 * 
+	 * @return Estado de la entidad
+	 */
+	EntityStatus getStatus();
 }

@@ -7,6 +7,7 @@ import java.util.List;
 import dominio.Card;
 import dominio.Cpu;
 import dominio.DeckCard;
+import dominio.EntityStatus;
 import dominio.FactoryEntity;
 import dominio.ICpu;
 import dominio.IDeckCard;
@@ -23,6 +24,8 @@ public class Game implements IGame {
 	private FactoryEntity factory;
 	private int maxPoints;
 	private boolean canClose;
+	private boolean winForChinchon;
+	private boolean gameOver;
 
 	/**
 	 * Constructor de la clase que se encarga de instanciarla
@@ -98,14 +101,22 @@ public class Game implements IGame {
 		preparePlayer();
 		prepareDeck(players.size());
 
-		for (int i = 0; i < players.size(); i++) {
-			players.get(i).clearHand();
-			for (int j = 0; j < 7; j++) {
-				players.get(i).draw(deckCard.drawDeck());
+		gameOver = false;
+
+		while (!gameOver) {
+			winForChinchon = false;
+			for (int i = 0; i < players.size(); i++) {
+				if (players.get(i).getStatus() == EntityStatus.INSIDE) {
+					players.get(i).clearHand();
+					for (int j = 0; j < 7; j++) {
+						players.get(i).draw(deckCard.drawDeck());
+					}
+				}
 			}
+			deckCard.addCardInDiscard(deckCard.drawDeck());
+			startRound();
 		}
-		deckCard.addCardInDiscard(deckCard.drawDeck());
-		startRound();
+
 	}
 
 	/**
@@ -115,8 +126,9 @@ public class Game implements IGame {
 	private void startRound() { /* TODO: Decidir quien es el ganador */
 		int turn = 1, closerIndex = -1;
 		IEntity player;
-		boolean gameOver = false;
 		canClose = false;
+		gameOver = false;
+		long playersLeft = players.stream().filter(p -> p.getStatus() == EntityStatus.INSIDE).count();
 
 		while (closerIndex == -1) {
 			menu.showTurn(turn);
@@ -137,6 +149,10 @@ public class Game implements IGame {
 		}
 
 		roundScore(closerIndex);
+
+		if (winForChinchon || playersLeft <= 1) {
+			gameOver = true;
+		}
 	}
 
 	/**
@@ -177,9 +193,10 @@ public class Game implements IGame {
 		}
 
 		List<Card> remaining = player.getTempHand();
-		int points = player.calculateScore(remaining), valueCard, index;
-		Card leftover;
+		int points, index, valueCard;
+		Card leftover, keptCard;
 
+		// Caso 1: Cierre perfecto, -10 puntos
 		if (remaining.isEmpty()) {
 			menu.showPerfectClosing();
 			player.getHand().clear();
@@ -187,37 +204,40 @@ public class Game implements IGame {
 			return true;
 		}
 
-		if (points >= maxPoints) {
+		// Caso 2: Cierre con más de dos cartas en mano
+		if (remaining.size() > 2) {
 			player.endTempMode();
-			menu.errorPoints();
+			menu.errorCombination();
 			return false;
 		}
 
+		// Caso 3: Cierre con 2 cartas
 		if (remaining.size() == 2) {
 			menu.showHand(player);
 			index = menu.selectClosingCard() - 1;
 			leftover = remaining.get(index);
+			valueCard = leftover.type().getScoreValue();
+
+			if (valueCard < 1 || valueCard > 5) {
+				player.endTempMode();
+				menu.errorCombination();
+				return false;
+			}
+
+			keptCard = remaining.get(index == 0 ? 1 : 0);
+			points = player.calculateScore(List.of(keptCard));
+			if (player.getScore() + points >= maxPoints) { // Solo se puede cerrar si no se supera maxPoints
+				player.endTempMode();
+				menu.errorPoints();
+				return false;
+			}
+
 			deckCard.addCardInDiscard(leftover);
 			player.getHand().clear();
 			player.getHand().addAll(remaining);
 			player.getHand().remove(leftover);
 			player.endTempMode();
 			return true;
-		}
-
-		if (remaining.size() == 1) {
-			leftover = remaining.get(0);
-			valueCard = leftover.type().getScoreValue();
-
-			if (valueCard >= 1 && valueCard <= 5) {
-				menu.showClosingCard(leftover.toString());
-				deckCard.addCardInDiscard(leftover);
-				player.getHand().clear();
-				player.getHand().addAll(remaining);
-				player.getHand().remove(leftover);
-				player.endTempMode();
-				return true;
-			}
 		}
 
 		player.endTempMode();
@@ -259,12 +279,17 @@ public class Game implements IGame {
 	private List<Integer> askForIndexes(IEntity player) {
 		List<Integer> indexes = new ArrayList<>();
 		int index;
-		boolean valid = false;
+		boolean valid;
 		String input;
 		String[] parts;
 
 		menu.showHand(player);
 		input = menu.listCards();
+
+		if (input.trim().isEmpty()) {
+			return indexes;
+		}
+
 		parts = input.trim().split("\\s+");
 		valid = true;
 
@@ -341,6 +366,7 @@ public class Game implements IGame {
 						}
 
 						if (combination == 3 && selectedCards.size() == 7) {
+							winForChinchon = true;
 							return true;
 						}
 
@@ -385,6 +411,11 @@ public class Game implements IGame {
 			points = player.calculateScore(player.getHand());
 			player.addScore(points);
 			menu.showRoundScore(player, points);
+
+			if (player.getScore() >= maxPoints) {
+				player.isOut();
+			}
+
 		}
 	}
 
