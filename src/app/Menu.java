@@ -129,6 +129,15 @@ public class Menu {
 	}
 
 	/**
+	 * 
+	 * @param nickname
+	 */
+
+	public void showPlayerTurn(String nickname) {
+		ci.writeLine(String.format("TURNO DE %s:\n   ", nickname));
+	}
+
+	/**
 	 * Método que le pide al usuario de que baraja quiere robar
 	 * 
 	 * @param discardCard Carta descartada
@@ -187,22 +196,21 @@ public class Menu {
 	 */
 
 	public String listCards() {
-		ci.writeLine("Introduzca los índices de las cartas con espacios que deseas combinar.\nEjemplo: (1 2 3) ");
+		ci.writeLine(
+				"Introduzca los índices de las cartas con espacios que deseas combinar.\nSi no desea introducir ninguna combinación, pulse ENTER\nEjemplo: (1 2 3) ");
 		return ci.readEmptyString();
 	}
 
 	public int selectClosingCard() {
-		return ci.readIntInRange(1, 2, "Seleccione si desea descartar la primera o la segunda crta para cerrar:");
+		return ci.readIntInRange(1, 2, "Seleccione si desea descartar la primera o la segunda carta para cerrar:");
 	}
 
 	/**
 	 * TODO
-	 * 
-	 * @param card
 	 */
 
-	public void showClosingCard(String card) {
-		ci.writeLine(String.format("Descartas %s para cerrar la ronda.", card));
+	public void showRoundEnd() {
+		ci.writeLine("\n        FIN DE LA RONDA\n");
 	}
 
 	/**
@@ -210,7 +218,7 @@ public class Menu {
 	 */
 
 	public void showPerfectClosing() {
-		ci.writeLine("¡Cierre perfecto! -10 puntos.");
+		ci.writeLine("¡Cierre perfecto!\nSe te resatrán 10 puntos.\n");
 	}
 
 	/**
@@ -221,7 +229,30 @@ public class Menu {
 	 */
 
 	public void showRoundScore(IEntity player, int points) {
-		ci.writeLine(String.format("%s (%s%d esta ronda)", player.toString(), points < 0 ? "" : "+", points));
+		ci.writeLine(String.format("%s (Has recibido %s%d en esta ronda)", player.toString(), points < 0 ? "" : "+",
+				points));
+	}
+
+	/**
+	 * 
+	 * @param nickname
+	 */
+
+	public void showPlayerOut(String nickname) {
+		ci.writeLine(String.format("\nEl jugador %s ha sido eliminado.\n", nickname));
+	}
+
+	/**
+	 * TODO
+	 */
+
+	public void showWinner(String nickname) {
+		ci.writeLine(String.format("¡El ganador es %s! ¡Felicidades!\n", nickname));
+	}
+
+	public void showWinnerForChinchon(String nickname) {
+		ci.writeLine(
+				String.format("¡Felicidades, %s!\nHas realizado un Chinchón, por lo tanto has ganado.\n", nickname));
 	}
 
 	/**

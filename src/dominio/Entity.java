@@ -107,6 +107,15 @@ public class Entity implements IEntity {
 	 */
 
 	@Override
+	public String getNickname() {
+		return nickname;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+
+	@Override
 	public void draw(Card drawCard) {
 		hand.add(drawCard);
 		orderDeckCard();
@@ -184,6 +193,7 @@ public class Entity implements IEntity {
 	 */
 
 	private boolean isSeries(List<Card> cards) {
+
 		CardType type = cards.get(0).type();
 		if (cards.size() < 3) {
 			return false;

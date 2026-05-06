@@ -119,4 +119,11 @@ public interface IEntity {
 	 * @return Estado de la entidad
 	 */
 	EntityStatus getStatus();
+
+	/**
+	 * TODO
+	 * 
+	 * @return
+	 */
+	String getNickname();
 }

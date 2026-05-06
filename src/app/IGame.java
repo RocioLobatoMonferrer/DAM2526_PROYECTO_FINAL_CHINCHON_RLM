@@ -10,11 +10,5 @@ public interface IGame {
 	 * 
 	 */
 
-	void startGame();
-
-	/**
-	 * 
-	 */
-
 	void startConfiguration();
 }
