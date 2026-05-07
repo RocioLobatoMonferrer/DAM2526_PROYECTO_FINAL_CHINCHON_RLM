@@ -66,7 +66,8 @@ public class Menu {
 	/**
 	 * Método que pide cuantos jugadores quiere el usuario
 	 * 
-	 * @return Opciones disponibles para el usuario
+	 * @return Opciones disponibles para el usuario, siendo mínimo deben ser 2
+	 *         jugadores y como máximo 5
 	 */
 
 	public int numberOfPlayers() {
@@ -99,7 +100,7 @@ public class Menu {
 	}
 
 	/**
-	 * Muestra que turno se encuentran los jugadores
+	 * Método que muestra que turno se encuentran los jugadores
 	 * 
 	 * @param turn El número del turno en cuestión
 	 */
@@ -129,8 +130,9 @@ public class Menu {
 	}
 
 	/**
+	 * Método que muestra de que jugador es el turno
 	 * 
-	 * @param nickname
+	 * @param nickname Apodo del jugador
 	 */
 
 	public void showPlayerTurn(String nickname) {
@@ -156,7 +158,7 @@ public class Menu {
 	 * 
 	 * @return Opciones disponibles para el usuario<br>
 	 *         Opción 1: Descartar una carta<br>
-	 *         Opción 2: Cerrar la ronda con una combinación de cartas
+	 *         Opción 2: Cerrar la ronda con combinaciones de cartas
 	 */
 
 	public int turnMenu2() {
@@ -176,20 +178,6 @@ public class Menu {
 	}
 
 	/**
-	 * Método que le pide al usuario que combinación desea hacer
-	 * 
-	 * @return Opciones disponibles para el usuario<br>
-	 *         Opción 1: Grupos del mismo número. Ej: 3-3-3 <br>
-	 *         Opción 2: Escalera. Ej: 1 2 3 <br>
-	 *         Opción 3: Chinchón. Ej: 1 2 3 4 5 6 7
-	 */
-
-	public int selectCombination() {
-		ci.writeLine("Seleccione que combinación deseas hacer:");
-		return ci.readIntInRange(1, 3, "1. Grupos\n2. Escalera\n3. Chinchón\n");
-	}
-
-	/**
 	 * Método que le pide el usuario que introduzca la combinación que desea
 	 * 
 	 * @return Combinación realizada por el usuario
@@ -201,12 +189,18 @@ public class Menu {
 		return ci.readEmptyString();
 	}
 
+	/**
+	 * Método que te pide seleccionar cual de tus cartas deseas descartar
+	 * 
+	 * @return Carta seleccionada por el usuario
+	 */
+
 	public int selectClosingCard() {
 		return ci.readIntInRange(1, 2, "Seleccione si desea descartar la primera o la segunda carta para cerrar:");
 	}
 
 	/**
-	 * TODO
+	 * Método que indica el fin de la ronda
 	 */
 
 	public void showRoundEnd() {
@@ -214,7 +208,8 @@ public class Menu {
 	}
 
 	/**
-	 * TODO
+	 * Método que indica que el cierre ha sido con todas sus cartas y se le restarán
+	 * puntos
 	 */
 
 	public void showPerfectClosing() {
@@ -222,10 +217,11 @@ public class Menu {
 	}
 
 	/**
-	 * TODO
+	 * Método que muestra la puntuación actual del usuario y los puntos que ha
+	 * ganado en esa ronda
 	 * 
-	 * @param player
-	 * @param points
+	 * @param player Jugador en cuestión
+	 * @param points Cantidad de puntos obtenidos
 	 */
 
 	public void showRoundScore(IEntity player, int points) {
@@ -234,8 +230,9 @@ public class Menu {
 	}
 
 	/**
+	 * Método que indica que el jugador ha sido eliminado de la partida
 	 * 
-	 * @param nickname
+	 * @param nickname Apodo del jugador
 	 */
 
 	public void showPlayerOut(String nickname) {
@@ -243,12 +240,20 @@ public class Menu {
 	}
 
 	/**
-	 * TODO
+	 * Método que muestra quien es el ganador de la partida
+	 * 
+	 * @param nickname Apodo del jugador
 	 */
 
 	public void showWinner(String nickname) {
 		ci.writeLine(String.format("¡El ganador es %s! ¡Felicidades!\n", nickname));
 	}
+
+	/**
+	 * Método que muestra quien es el ganador de la partida por hacer un Chinchón
+	 * 
+	 * @param nickname Apodo del jugador
+	 */
 
 	public void showWinnerForChinchon(String nickname) {
 		ci.writeLine(
@@ -277,5 +282,15 @@ public class Menu {
 
 	public void errorPoints() {
 		ci.writeError("No puedes cerrar ya que vas a sobrepasar el límite de puntos.");
+	}
+
+	/**
+	 * Método que pinta 50 líneas vacías para separar los turnos de los jugadores
+	 */
+
+	public void fakeClearConsole() {
+		for (int i = 0; i < 50; i++) {
+			ci.writeLine("");
+		}
 	}
 }

@@ -7,13 +7,13 @@ Representa a los 4 palos de baraja española.
 
 ## ATRIBUTOS
 
-- Atributos constantes que consisten en los palos de las cartas y su color
+- Atributos constantes que consisten en los palos de las cartas y su color.
 
 	```java
 	COINS("\u001B[33m" + "\uD83D\uDCB0"), CUPS("\u001B[31m" + "\uD83C\uDF77"), SWORDS("\u001B[34m" + "\u2694"), CLUBS("\u001B[32m" + "\uD83C\uDF3F"), ERROR("?");
 	```
 
-- Atributo del palo
+- Atributo del palo.
 
 	```java
 	private String symbol;
@@ -40,6 +40,9 @@ public String getSymbol() {
 ```
 
 ## RELACIONES
+
+Suit es utilizada por las clases DeckCard y Card para formar respectivamente la baraja y las cartas.
+
 
 [Volver al Índice](../indiceClases.md)
 

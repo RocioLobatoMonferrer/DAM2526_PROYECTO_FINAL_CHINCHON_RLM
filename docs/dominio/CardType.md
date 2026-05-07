@@ -7,19 +7,19 @@ Representa sus distintos valores y su puntuación.
 
 ## ATRIBUTOS
 
-- Atributos constantes que consiste en los valores de la carta 
+- Atributos constantes que consiste en los valores de la carta .
 
 ```java
 ONE(1, 1), TWO(2, 2), THREE(3, 3), FOUR(4, 4), FIVE(5, 5), SIX(6, 6), SEVEN(7, 7), JACK(8, 10), KNIGHT(9, 11), KING(10, 12), ERROR(-1, 0);
 ```
 
-- Atributo que indica el valor de la carta
+- Atributo que indica el valor de la carta.
 
 ```java
 private int straightValue;
 ```
 
-- Atributo que indica lo que vale la carta
+- Atributo que indica lo que vale la carta.
 
 ```java
 private int scoreValue;
@@ -27,7 +27,11 @@ private int scoreValue;
 
 ### CONSTRUCTOR
 
-- Constructor de la clase que permite la instancia del valor de la carta:
+- Constructor de la clase que permite la instancia del valor de la carta. 
+Podemos encontrar los siguientes parametros:
+
+    - straightValue: Valor estándar de cada carta.
+	- scoreValue: Puntuación de cada carta.
 
 ```java
 CardType(int straightValue, int scoreValue) {
@@ -38,7 +42,7 @@ CardType(int straightValue, int scoreValue) {
 
 ## MÉTODOS
 
-- Método que devuelve el valor de la carta:
+- Método que devuelve el valor de la carta.
 
 ```java
 public int getStraightValue() {
@@ -47,7 +51,7 @@ public int getStraightValue() {
 
 ```
 
-- Método que devuelve la puntuación de la carta:
+- Método que devuelve la puntuación de la carta.
 
 ```java
 public int getScoreValue() {
@@ -56,6 +60,8 @@ public int getScoreValue() {
 ```
 
 ## RELACIONES
+
+CardType es utilizada por las clases DeckCard y Card para formar respectivamente la baraja y las cartas.
 
 [Volver al Índice](../indiceClases.md)
 

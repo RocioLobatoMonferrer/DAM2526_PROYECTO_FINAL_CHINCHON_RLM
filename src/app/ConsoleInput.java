@@ -4,7 +4,7 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 
 /**
- * Clase encargada de la entrada y salida por consola.
+ * Clase encargada de la entrada y salida por consola
  */
 
 public class ConsoleInput {

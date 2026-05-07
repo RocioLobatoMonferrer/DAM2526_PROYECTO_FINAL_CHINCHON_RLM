@@ -27,8 +27,8 @@ public class DeckCard implements IDeckCard {
 	 * @param c Carta que será añadida
 	 */
 
-	private void addCard(Card c) {
-		deckInCards.add(c);
+	private void addCard(Card card) {
+		deckInCards.add(card);
 	}
 
 	/**
@@ -73,8 +73,8 @@ public class DeckCard implements IDeckCard {
 	 */
 
 	@Override
-	public void addCardInDiscard(Card c) {
-		discardCards.add(c);
+	public void addCardInDiscard(Card card) {
+		discardCards.add(card);
 	}
 
 	/**

@@ -1,5 +1,5 @@
 # ENTITY 
-WIP
+*W I P*
 
 ## FUNCIÓN
 
@@ -7,25 +7,31 @@ Clase encargada de gestionar a las entidades.
 
 ## ATRIBUTOS
 
-- Atributo de la mano de la entidad
+- Atributo de la mano de la entidad.
 
 ```java
 private List<Card> hand;
 ```
 
-- Atributo que indica si la entidad sigue dentro o no de la partida
+- Atributo de la mano temporal de la entidad cuando este haciendo combinaciones.
+
+```java
+private List<Card> tempHand;
+```
+
+- Atributo que indica si la entidad sigue dentro o no de la partida.
 
 ```java
 private EntityStatus status;
 ```
 
-- Atributo que indica el apodo de la entidad
+- Atributo que indica el apodo de la entidad.
 
 ```java
 private String nickname;
 ```
 
-- Atributo de la puntuación de la entidad
+- Atributo de la puntuación de la entidad.
 
 ```java
 private int score;
@@ -35,7 +41,7 @@ private int score;
 
 - Constructor de la clase que se encarga de instanciarla. Podemos encontrar los siguientes parametros:
 
-    - nickname Apodo de la entidad
+    - nickname Apodo de la entidad.
 
 ```java
 public Entity(String nickname) {
@@ -48,8 +54,8 @@ public Entity(String nickname) {
 
 ## MÉTODOS
 
-- Método que muestra la mano de la entidad
-    Este método devuelve la mano de la entidad
+- Método que muestra la mano de la entidad.
+    Este método devuelve la mano de la entidad.
 
 ```java
 @Override
@@ -58,8 +64,35 @@ public Entity(String nickname) {
 	}
 ```
 
-- Método que indica el estado de la entidad
-     Este método devuelve la mano de la entidad
+- Método 
+
+```java
+@Override
+	public List<Card> getTempHand() {
+		return tempHand != null ? tempHand : hand;
+	}
+```
+
+- Método 
+
+```java
+@Override
+	public void startTempMode() {
+		tempHand = new ArrayList<>(hand);
+	}
+```
+
+- Método 
+
+```java
+@Override
+	public void endTempMode() {
+		tempHand = null;
+	}
+```
+
+- Método que indica el estado de la entidad.
+     Este método devuelve la mano de la entidad.
 
 ```java
 public EntityStatus getStatus() {
@@ -67,8 +100,8 @@ public EntityStatus getStatus() {
 	}
 ```
 
-- Método que cambia el estado de la entidad
-     Este método devuelve el estado de la entidad
+- Método que cambia el estado de la entidad.
+     Este método devuelve el estado de la entidad.
 
 ```java
 public void setStatus(EntityStatus status) {
@@ -76,8 +109,35 @@ public void setStatus(EntityStatus status) {
 	}
 ```
 
-- Método que permite a la entidad robar una carta
-     Este método devuelve la carta robada
+- Método 
+
+```java
+@Override
+	public void addScore(int points) {
+		score += points;
+	}
+```
+
+- Método 
+
+```java
+@Override
+	public int getScore() {
+		return score;
+	}
+```
+
+- Método 
+
+```java
+@Override
+	public String getNickname() {
+		return nickname;
+	}
+```
+
+- Método que permite a la entidad robar una carta.
+     Este método devuelve la carta robada.
 
 ```java
 @Override
@@ -87,13 +147,13 @@ public void setStatus(EntityStatus status) {
 	}
 ```
 
-- Método que comprueba cual de las combinaciones es la correcta
+- Método que comprueba cual de las combinaciones es la correcta.
 Podemos encontrar los siguientes parametros:
 
-	- cards: Cartas que forman la combinación
-	- option: Opción entre las 3 posibilidades que ahí
+	- cards: Cartas que forman la combinación.
+	- option: Opción entre las 3 posibilidades que ahí.
 
-    Este método devuelve true/false si la combinación es válida o no
+    Este método devuelve true/false si la combinación es válida o no.
 
 ```java
 @Override
@@ -114,9 +174,9 @@ Podemos encontrar los siguientes parametros:
 
 - Método que calcula la puntuación de la entidad dependiendo de cuantas cartas no combine. Si no tiene ninguna que le sobre, se le restarán 10 puntos. Podemos encontrar los siguientes parametros:
 
-	- remaining: Cartas sobrantes
+	- remaining: Cartas sobrantes.
 
-    Este método devuelve la puntuación de la entidad
+    Este método devuelve la puntuación de la entidad.
 
 ```java
 @Override
@@ -135,7 +195,7 @@ Podemos encontrar los siguientes parametros:
 	}
 ```
 
-- Método para ordenar las cartas de la mano de las entidades
+- Método para ordenar las cartas de la mano de las entidades.
 
 ```java
 private void orderDeckCard() {
@@ -143,7 +203,7 @@ private void orderDeckCard() {
 	}
 ```
 
-- Método que comprueba cual de las combinaciones es la correcta
+- Método que comprueba cual de las combinaciones es la correcta.
 Podemos encontrar los siguientes parametros:
 
 	- cards: Cartas que forman la combinación
@@ -163,7 +223,7 @@ Podemos encontrar los siguientes parametros:
 	}
 ```
 
-- Método que comprueba si la combinación es un trío con todos el mismo palo o más
+- Método que comprueba si la combinación es un trío con todos el mismo palo o más.
 Podemos encontrar los siguientes parametros:
 
 	- cards: Cartas combinadas
@@ -186,7 +246,7 @@ private boolean isSeries(List<Card> cards) {
 	}
 ```
 
-- Método que comprueba si la combinación corresponde con la de una escalera
+- Método que comprueba si la combinación corresponde con la de una escalera.
 Podemos encontrar los siguientes parametros:
 
 	- cards: Cartas combinadas
@@ -221,7 +281,7 @@ private boolean isStraight(List<Card> cards) {
 	}
 ```
 
-- Método que comprueba si la combinación corresponde con la de un Chinchón, es decir, una escalera de 7
+- Método que comprueba si la combinación corresponde con la de un Chinchón, es decir, una escalera de 7.
 Podemos encontrar los siguientes parametros:
 
 	- cards: Cartas combinadas
@@ -253,27 +313,30 @@ private boolean isChichon(List<Card> cards) {
 ```
 
 - Método que muestra la mano al completo de la entidad
-    Este método devuelve la mano de la entidad
 
 ```java
 @Override
 	public String showHand() {
+		List<Card> source = getTempHand();
 		StringBuilder sb = new StringBuilder("");
 		sb.append(String.format("%s - ", nickname));
-		for (int i = 0; i < hand.size(); i++) {
-			if (i != 0 && i != hand.size() - 1) {
-				sb.append(", ");
-			} else if (i == hand.size() - 1) {
+		for (int i = 0; i < source.size(); i++) {
+
+			if (i == 0) {
+				sb.append("");
+			} else if (i == source.size() - 1) {
 				sb.append(" y ");
+			} else {
+				sb.append(", ");
 			}
-			sb.append(String.format("[%d]%s", i + 1, hand.get(i)));
+			sb.append(String.format("[%d] %s", i + 1, source.get(i)));
 		}
 		sb.append(".");
 		return sb.toString();
 	}
 ```
 
-- WIP
+- Método que muestra tanto el apodo de la entidad como su puntuación
 
 ```java
 @Override

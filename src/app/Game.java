@@ -82,7 +82,7 @@ public class Game implements IGame {
 	}
 
 	/**
-	 * Método que prepara el deck creandolo
+	 * Método que prepara la baraja creandola
 	 * 
 	 * @param times Cantidad de veces que va a tener que crearlo
 	 */
@@ -92,7 +92,8 @@ public class Game implements IGame {
 	}
 
 	/**
-	 * 
+	 * Método que inicia la partida con jugadores y las barajas listas y se reparten
+	 * las cartas
 	 */
 
 	private void startGame() {
@@ -122,7 +123,7 @@ public class Game implements IGame {
 	 * Método que prepara la ronda para los jugadores
 	 */
 
-	private void startRound() { /* TODO: Decidir quien es el ganador */
+	private void startRound() {
 		int turn = 1, closerIndex = -1;
 		IEntity player;
 		canClose = false;
@@ -383,10 +384,10 @@ public class Game implements IGame {
 
 				} else {
 
-					combination = menu.selectCombination();
 					selectedCards = getCardsFromIndexes(player.getTempHand(), indexes);
+					combination = detectCombination(player, selectedCards);
 
-					if (!player.validateCombination(selectedCards, combination)) {
+					if (combination == 0) {
 						menu.errorCombination();
 
 					} else {
@@ -413,6 +414,26 @@ public class Game implements IGame {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * 
+	 * @param player
+	 * @param cards
+	 * @return
+	 */
+
+	public int detectCombination(IEntity player, List<Card> cards) {
+
+		if (player.validateCombination(cards, 3)) {
+			return 3;
+		} else if (player.validateCombination(cards, 2)) {
+			return 2;
+		} else if (player.validateCombination(cards, 1)) {
+			return 1;
+		} else {
+			return 0;
+		}
 	}
 
 	/**

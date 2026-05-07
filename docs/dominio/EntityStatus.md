@@ -19,6 +19,8 @@ public enum EntityStatus {
 
 ## RELACIONES
 
+EntityStatus es utilizado por Entity para definir si esta dentro o fuera de la partida.
+
 [Volver al Índice](../indiceClases.md)
 
 [Regresar al README](../README.md)

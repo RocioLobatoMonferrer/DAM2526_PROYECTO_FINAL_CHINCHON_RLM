@@ -32,7 +32,7 @@ Solo ganará el último que quede en pie
 
 ## FUNCIONAMIENTO DEL PROGRAMA
 
-[Aquí podrás encontrar las clases que se utilizaron para el proyecto]()
+[Aquí podrás encontrar las clases que se utilizaron para el proyecto](indiceClases.md)
 
 ## DIAGRAMA DE CLASE (UML)
 

@@ -33,10 +33,10 @@ public interface IDeckCard {
 	/**
 	 * Método que añade una carta a la baraja de descartes
 	 * 
-	 * @param c Carta que será añadida
+	 * @param card Carta que será añadida
 	 */
 
-	void addCardInDiscard(Card c);
+	void addCardInDiscard(Card card);
 
 	/**
 	 * Método que muestra la primera carta de la pila de descartes

@@ -4,9 +4,9 @@
 
 - Record que almacena la carta de la baraja española. Podemos encontrar los siguientes parametros: 
 
-    - id: Representa un identificador único para cada carta
-    - type: Representa el valor de la carta (1-7, SOTA, CABALLO y REY)
-    - suit: Representa el palo de la carta (OROS, COPAS, ESPADAS y BASTOS)
+    - id: Representa un identificador único para cada carta.
+    - type: Representa el valor de la carta (1-7, SOTA, CABALLO y REY).
+    - suit: Representa el palo de la carta (OROS, COPAS, ESPADAS y BASTOS).
 
 ```java
 public record Card(int id, CardType type, Suit suit) implements Comparable<Card> {
@@ -14,7 +14,7 @@ public record Card(int id, CardType type, Suit suit) implements Comparable<Card>
 
 ## MÉTODOS
 
-- Método estándar toString que imprime el número y el palo de la carta
+- Método estándar toString que imprime el número y el palo de la carta.
 
 ```java
 @Override
@@ -23,7 +23,7 @@ public record Card(int id, CardType type, Suit suit) implements Comparable<Card>
 	}
 ```
 
-- Método estándar compareTo para comparar los valores de la carta para ordenarlos
+- Método estándar compareTo para comparar los valores de la carta para ordenarlos.
 
 ```java
 @Override
@@ -34,6 +34,8 @@ public record Card(int id, CardType type, Suit suit) implements Comparable<Card>
 ```
 
 ## RELACIONES
+
+Card es utilizada por las clases DeckCard, Entity y Game para formar respectivamente la baraja la mano tanto principal como la temporal de la entidad y para listas de cartas necesarias, como lo serían las cartas restantes...
 
 [Volver al Índice](../indiceClases.md)
 
