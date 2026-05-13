@@ -1,5 +1,4 @@
 # ENTITY 
-*W I P*
 
 ## FUNCIÓN
 
@@ -64,7 +63,8 @@ public Entity(String nickname) {
 	}
 ```
 
-- Método 
+- Método que devuelve la mano temporal de la entidad.
+	Este método devuelve la mano temporal de la entidad.
 
 ```java
 @Override
@@ -73,7 +73,7 @@ public Entity(String nickname) {
 	}
 ```
 
-- Método 
+- Método que activa el modo temporal, copiando la mano actual de la entidad en una mano temporal para realizar combinaciones.
 
 ```java
 @Override
@@ -82,7 +82,7 @@ public Entity(String nickname) {
 	}
 ```
 
-- Método 
+- Método que desactiva el modo temporal eliminando la mano temporal. 
 
 ```java
 @Override
@@ -109,7 +109,8 @@ public void setStatus(EntityStatus status) {
 	}
 ```
 
-- Método 
+- Método que añade puntos a la puntuación acumulada de la entidad.
+	Este método devuelve los puntos a añadir.
 
 ```java
 @Override
@@ -118,7 +119,8 @@ public void setStatus(EntityStatus status) {
 	}
 ```
 
-- Método 
+- Método que devuelve la puntuación acumulada de la entidad.
+	Este método devuelve la puntuación acumulada de la entidad.
 
 ```java
 @Override
@@ -127,7 +129,8 @@ public void setStatus(EntityStatus status) {
 	}
 ```
 
-- Método 
+- Método que devuelve el apodo de la entidad.
+	Este método devuelve el apodo de la entidad.
 
 ```java
 @Override
@@ -163,7 +166,7 @@ Podemos encontrar los siguientes parametros:
 	}
 ```
 
-- Método que limpia la mano
+- Método que limpia la mano.
 
 ```java
 @Override
@@ -206,10 +209,10 @@ private void orderDeckCard() {
 - Método que comprueba cual de las combinaciones es la correcta.
 Podemos encontrar los siguientes parametros:
 
-	- cards: Cartas que forman la combinación
-    - option: Opción entre las 3 posibilidades que ahí
+	- cards: Cartas que forman la combinación.
+    - option: Opción entre las 3 posibilidades que ahí.
 
-    Este método devuelve true/false si la combinación es válida o no
+    Este método devuelve true/false si la combinación es válida o no.
 
 ```java
 @Override
@@ -226,9 +229,9 @@ Podemos encontrar los siguientes parametros:
 - Método que comprueba si la combinación es un trío con todos el mismo palo o más.
 Podemos encontrar los siguientes parametros:
 
-	- cards: Cartas combinadas
+	- cards: Cartas combinadas.
 
-    Este método devuelve true/false si la combinación es correcta
+    Este método devuelve true/false si la combinación es correcta.
 
 ```java
 private boolean isSeries(List<Card> cards) {
@@ -249,9 +252,9 @@ private boolean isSeries(List<Card> cards) {
 - Método que comprueba si la combinación corresponde con la de una escalera.
 Podemos encontrar los siguientes parametros:
 
-	- cards: Cartas combinadas
+	- cards: Cartas combinadas.
 
-    Este método devuelve true/false si la combinación es correcta
+    Este método devuelve true/false si la combinación es correcta.
 
 ```java
 private boolean isStraight(List<Card> cards) {
@@ -284,9 +287,9 @@ private boolean isStraight(List<Card> cards) {
 - Método que comprueba si la combinación corresponde con la de un Chinchón, es decir, una escalera de 7.
 Podemos encontrar los siguientes parametros:
 
-	- cards: Cartas combinadas
+	- cards: Cartas combinadas.
 
-    Este método devuelve true/false si la combinación es correcta
+    Este método devuelve true/false si la combinación es correcta.
 
 ```java
 private boolean isChichon(List<Card> cards) {
@@ -294,7 +297,7 @@ private boolean isChichon(List<Card> cards) {
 	}
 ```
 
-- Método que cambia el estado del jugador a que siga dentro de la partida
+- Método que cambia el estado del jugador a que siga dentro de la partida.
 
 ```java
 @Override
@@ -303,7 +306,7 @@ private boolean isChichon(List<Card> cards) {
 	}
 ```
 
-- Método que cambia el estado del jugador a que no esta dentro de la partida
+- Método que cambia el estado del jugador a que no esta dentro de la partida.
 
 ```java
 @Override
@@ -312,7 +315,7 @@ private boolean isChichon(List<Card> cards) {
 	}
 ```
 
-- Método que muestra la mano al completo de la entidad
+- Método que muestra la mano al completo de la entidad.
 
 ```java
 @Override
@@ -336,7 +339,7 @@ private boolean isChichon(List<Card> cards) {
 	}
 ```
 
-- Método que muestra tanto el apodo de la entidad como su puntuación
+- Método que muestra tanto el apodo de la entidad como su puntuación.
 
 ```java
 @Override
@@ -349,6 +352,8 @@ private boolean isChichon(List<Card> cards) {
 ```
 
 ## RELACIONES
+
+Entity es utilizado por las clase Game y Menu. En el primer caso, sirve para crear y almacenar todos los jugadores que habrá en la partida y en el otro caso sirve para enseñar la mano del jugador. Además de esto, Entity es la superclase de Cpu.
 
 [Volver al Índice](../indiceClases.md)
 

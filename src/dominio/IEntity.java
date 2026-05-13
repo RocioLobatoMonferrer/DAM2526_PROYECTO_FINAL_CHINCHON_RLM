@@ -88,28 +88,29 @@ public interface IEntity {
 	List<Card> getTempHand();
 
 	/**
-	 * TODO
+	 * Método que activa el modo temporal, copiando la mano actual de la entidad
+	 * en una mano temporal para realizar combinaciones
 	 */
 
 	void startTempMode();
 
 	/**
-	 * TODO
+	 * Método que desactiva el modo temporal eliminando la mano temporal
 	 */
 
 	void endTempMode();
 
 	/**
-	 * TODO
+	 * Método que añade puntos a la puntuación acumulada de la entidad
 	 * 
-	 * @param points
+	 * @param points Puntos a añadir
 	 */
 	void addScore(int points);
 
 	/**
-	 * TODO
+	 * Método que devuelve la puntuación acumulada de la entidad
 	 * 
-	 * @return
+	 * @return Puntuación acumulada de la entidad
 	 */
 	int getScore();
 
@@ -121,9 +122,9 @@ public interface IEntity {
 	EntityStatus getStatus();
 
 	/**
-	 * TODO
+	 * Método que devuelve el apodo de la entidad
 	 * 
-	 * @return
+	 * @return Apodo de la entidad
 	 */
 	String getNickname();
 }

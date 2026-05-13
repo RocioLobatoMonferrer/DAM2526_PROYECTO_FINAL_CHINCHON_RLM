@@ -1,5 +1,7 @@
 # PROYECTO FINAL DE PROGRAMACIÓN 25/26 - CHINCHÓN
 
+![Imagen de título sobre el Chinchón](/assets/titulo.png)
+
 ## ¿QUÉ ES EL CHINCHÓN?
 
 El Chinchón es un juego español de la extensa familia de juegos de cartas en el cual debes combinar las cartas de tu mano antes que el resto de los jugadores para poder elaborar la mejor estrategia a la hora de tener la menor cantidad de puntos posibles. 
@@ -36,11 +38,15 @@ Solo ganará el último que quede en pie
 
 ## DIAGRAMA DE CLASE (UML)
 
+![Imagen UML del proyecto](/assets/UML_Chinchón.drawio%20(1).png)
+
 ## ESTRUCTURA DEL PROYECTO
 
 Este proyecto está compuesto por las siguientes carpetas: 
 
-- docs: Carpeta en la que se almacenan documentos de información importante para el proyecto, como el diagrama de clase, el readme, entre otros...
+- assets: Carpeta en la que se almacenan las imágenes que se utilizarán en este proyecto, como lo son, el diagrama de clase, entre otros...
+
+- docs: Carpeta en la que se almacenan documentos de información importante para el proyecto, el readme, entre otros...
 
 - src: Carpeta en la que se encuentra el códgio fuente del juego. Dentro de ella encontramos:
     - app: Aquí encontraremos las clases que llevan el flujo de la partida y funciones para la comunicación y la visualización del usuario
@@ -51,11 +57,208 @@ El resto de carpetas y archivos son fundamentales para el funcionamiento del pro
 
 ## PRUEBAS UNITARIAS CON JUnit 5
 
+En este proyecto hemos realizado cierta pruebas para comprobar el comportamiento de un programa para detectar errores y aumentar la confianza en su calidad. Como estamos programando en Java, utilizaremos JUnit 5, que es uno de los frameworks más conocidos para hacer pruebas en Java. En este apartado tendremos en cuenta las pruebas de *caja negra* y *caja blanca*.
+
+Para estas pruebas, nos centraremos en la clase Entity, así que dentro de la carpeta test del proyecto hemos creado la clase "EntityParameterizedTest":
+
+Para facilitar la selección de cartas, hemos creado un método auxiliar privado dentro de la clase de pruebas para que valide los índices introducidos no superen el tamaño de la mano antes de llamar al método validateCombination:
+
+```java
+private boolean validateIndexes(Entity e, String indexes) {
+		
+	    String[] parts = indexes.trim().split("\\s+");
+	    int val;
+	    if (parts.length < 3) return false;
+	    for (String p : parts) {
+	        try {
+	             val = Integer.parseInt(p);
+	            if (val < 1 || val > e.getHand().size()) return false;
+	        } catch (NumberFormatException ex) {
+	            return false;
+	        }
+	    }
+	    return true;
+	}
+```
+
+A continuación, vamos a ver pruebas de caja blanca, que nos sirven para conocer los requisitos internos del programa para diseñar los casos correctamente, como por ejemplo saber que SEVEN y JACK son consecutivos en las escaleras:
+
+- isSeriesTest:
+
+Prueba que valida que el método isSeries detecta correctamente una combinación de cartas del mismo tipo. La mano se compone de 4 cartas del mismo tipo con distintos palos y una quinta carta de tipo diferente para romper la serie:
+
+```java
+@ParameterizedTest
+	@CsvSource({ 
+		"1 2 3, true",  
+	    "1 2 3 4 5, true",  
+	    "1 2 3 4 5 6, true", 
+	    "1 2 3 4 5 6 7, true",  
+	    "1 2 3 4 5 6 7 8, false", 
+	    "1 2, false", 
+	    "1 2 9, false", 
+	    "1 2 10, false" 
+		})
+	
+	void isSeriesTest(String indexes, boolean expected) {
+		Entity e = new Entity("Test");
+		boolean result;
+		for (int i = 1; i <=8; i++) {
+			e.draw(new Card(i, CardType.KING, Suit.COINS));
+		}
+		
+		if (!validateIndexes(e,indexes)) {
+			result = false;
+		} else {
+			List<Card> cards = Arrays.stream(indexes.trim().split("\\s+"))
+					.map(i -> e.getHand().get(Integer.parseInt(i) -1))
+					.toList();
+			
+			result = e.validateCombination(cards, 1);
+		}
+		
+		assertEquals(expected, result);
+	}
+```
+
+- isStraightTest:
+
+Prueba que valida que el método isStraight detecta correctamente una escalera. La mano se compone de 8 cartas consecutivas del mismo palo, siendo la carta 8 un JACK que es consecutivo al SEVEN:
+
+```java
+@ParameterizedTest
+	@CsvSource({ 
+		"1 2 3, true",
+		"1 2 3 4 5, true",
+		"1 2 3 4 5 6, true",
+		"1 2, false", 
+		"1 2 4, false",
+		"1 2 8, false",
+		"1 1 2, false",
+		"1 2 10, false",
+		"2 3 10, false"
+		})
+	
+	void isStraightTest(String indexes, boolean expected) {
+		Entity e = new Entity("Test");
+		Suit suit = Suit.CLUBS;
+		CardType type;
+		boolean result;
+		
+		for (int i = 1; i<=8;i++){
+			type = switch(i) {
+			case 1 -> CardType.ONE;
+			case 2 -> CardType.TWO;
+			case 3 -> CardType.THREE;
+			case 4 -> CardType.FOUR;
+			case 5 -> CardType.FIVE;
+			case 6 -> CardType.SIX;
+			case 7 -> CardType.SEVEN;
+			case 8 -> CardType.JACK;
+			default -> CardType.ERROR;
+			};
+				e.draw(new Card(i, type, suit));
+			}
+		
+		if (!validateIndexes(e,indexes)) {
+			result = false;
+		} else {
+			List<Card> cards = Arrays.stream(indexes.trim().split("\\s+"))
+					.map(i -> e.getHand().get(Integer.parseInt(i) -1))
+					.toList();
+			
+			result = e.validateCombination(cards, 2);
+		}
+		
+		assertEquals(expected, result);
+	}
+```
+
+- isChinchonTest:
+
+Prueba que valida que el método isChichon detecta correctamente un chinchón. La mano se compone de 7 cartas consecutivas del mismo palo y una octava carta JACK que junto al SEVEN es consecutiva.
+
+```java
+@ParameterizedTest
+	@CsvSource({
+		"1 2 3 4 5 6 7, true",  
+	    "1 2 3 4 5 6, false", 
+	    "1 2 3 4 5 6 8, false", 
+	    "1 2, false"
+	})
+	
+	void isChinchonTest(String indexes, boolean expected) {
+		Entity e = new Entity("Test");
+		Suit suit = Suit.CLUBS;
+		CardType type;
+		boolean result;
+		
+		for (int i = 1; i<=8;i++){
+			type = switch(i) {
+			case 1 -> CardType.ONE;
+			case 2 -> CardType.TWO;
+			case 3 -> CardType.THREE;
+			case 4 -> CardType.FOUR;
+			case 5 -> CardType.FIVE;
+			case 6 -> CardType.SIX;
+			case 7 -> CardType.SEVEN;
+			case 8 -> CardType.JACK;
+			default -> CardType.ERROR;
+			};
+				e.draw(new Card(i, type, suit));
+			}
+		
+		if (!validateIndexes(e,indexes)) {
+			result = false;
+		} else {
+			List<Card> cards = Arrays.stream(indexes.trim().split("\\s+"))
+					.map(i -> e.getHand().get(Integer.parseInt(i) -1))
+					.toList();
+			
+			result = e.validateCombination(cards, 3);
+		}
+		
+		assertEquals(expected, result);
+	}
+```
+
+Por último, vamos a ver una prueba de caja negra, que nos sirven para pruebas que solo conocemos las reglas del juego: cada carta suma su valor en puntos y si no sobra ninguna carta el resultado es -10. No miramos la implementación interna de calculateScore:
+
+- calculateScoreTest:
+
+```java
+@ParameterizedTest
+	@CsvSource({
+		"0, -10",  
+	    "1, 1", 
+	    "2, 3", 
+	    "3, 6"
+	})
+	
+	void calculateScoreTest(int numCards, int expected) {
+		Entity e = new Entity("Test");
+		List<Card> remaining = new ArrayList<>();
+		CardType[] types = {CardType.ONE, CardType.TWO, CardType.THREE};
+		
+	    for (int i = 0; i < numCards; i++) {
+	        remaining.add(new Card(i + 1, types[i], Suit.COINS));
+	    }
+
+	    int result = e.calculateScore(remaining);
+	    assertEquals(expected, result);
+		
+	}
+```
+
+Por último, podemos observar en esta imagen que todas las pruebas han sido existosas:
+
+![Imagen de las pruebas pasadas](/assets/pruebas.png)
+
 ## PATRONES DE DISEÑOS 
 
 Para este proyecto, se han utilizado patrones de diseño para facilitar la reutilización, hacerlo más mantenible y reducir el acomplamiento del código. 
 
-Antes de ver cuales son los patrones de diseño utilizados, debemos saber que un patrón de diseño es uns solución reutilizable y general a un problema común en el desarrollo de software, por lo tanto, es muy útil usarlo a la hora de entender el proyecto.
+Antes de ver cuales son los patrones de diseño utilizados, debemos saber que un patrón de diseño es una solución reutilizable y general a un problema común en el desarrollo de software, por lo tanto, es muy útil usarlo a la hora de entender el proyecto.
 
 Existen distintos patrones de diseño, pero para este proyecto encontraremos dos de estos: Singleton y Factory, los cuales son utilizados a la hora de la creación de objetos
 

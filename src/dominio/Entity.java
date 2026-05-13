@@ -195,7 +195,7 @@ public class Entity implements IEntity {
 	private boolean isSeries(List<Card> cards) {
 
 		CardType type = cards.get(0).type();
-		if (cards.size() < 3) {
+		if (cards.size() < 3 || cards.size() > 7) {
 			return false;
 		}
 
@@ -218,7 +218,7 @@ public class Entity implements IEntity {
 		List<Card> sortCard = new ArrayList<>(cards);
 		Suit suit = cards.get(0).suit();
 
-		if (cards.size() < 3) {
+		if (cards.size() < 3 || cards.size() > 7) {
 			return false;
 		}
 

@@ -196,7 +196,18 @@ public class Menu {
 	 */
 
 	public int selectClosingCard() {
-		return ci.readIntInRange(1, 2, "Seleccione si desea descartar la primera o la segunda carta para cerrar:");
+		return ci.readIntInRange(1, 2, "Seleccione si desea descartar la primera o la segunda carta para cerrar:\n");
+	}
+
+	/**
+	 * Método que le indica al usuario que carta ha sido descartar para cerrar la
+	 * ronda
+	 * 
+	 * @param card Carta descartada para cerrar
+	 */
+
+	public void showClosingCard(String card) {
+		ci.writeLine(String.format("\nDescartas %s para cerrar la ronda.\n", card));
 	}
 
 	/**
@@ -213,7 +224,7 @@ public class Menu {
 	 */
 
 	public void showPerfectClosing() {
-		ci.writeLine("¡Cierre perfecto!\nSe te resatrán 10 puntos.\n");
+		ci.writeLine("¡Cierre perfecto!\nSe te restarán 10 puntos.\n");
 	}
 
 	/**
@@ -265,7 +276,7 @@ public class Menu {
 	 */
 
 	public void errorClose() {
-		ci.writeError("No puedes cerrar en el primer turno.");
+		ci.writeError("No puedes cerrar en el primer turno.\n");
 	}
 
 	/**
@@ -273,7 +284,7 @@ public class Menu {
 	 */
 
 	public void errorCombination() {
-		ci.writeError("Combinación incorrecta.");
+		ci.writeError("Combinación incorrecta, por favor, intentelo de nuevo.\n");
 	}
 
 	/**
@@ -281,7 +292,16 @@ public class Menu {
 	 */
 
 	public void errorPoints() {
-		ci.writeError("No puedes cerrar ya que vas a sobrepasar el límite de puntos.");
+		ci.writeError("No puedes cerrar ya que vas a sobrepasar el límite de puntos.\n");
+	}
+
+	/**
+	 * Método que le dice al usuario que no puede cerrar con una carta superior que
+	 * 5
+	 */
+
+	public void errorCloseCard() {
+		ci.writeError("No puedes cerrar con una carta que es mayor que 5.\n");
 	}
 
 	/**

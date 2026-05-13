@@ -57,7 +57,7 @@ public class Game implements IGame {
 	}
 
 	/**
-	 * Método que añade los jugadores
+	 * Método que añade la entidad a la lista de jugadores de la partida
 	 * 
 	 * @param entity Entidad de la partida
 	 */
@@ -82,7 +82,7 @@ public class Game implements IGame {
 	}
 
 	/**
-	 * Método que prepara la baraja creandola
+	 * Método que prepara la baraja creándola según el número de jugadores
 	 * 
 	 * @param times Cantidad de veces que va a tener que crearlo
 	 */
@@ -92,8 +92,8 @@ public class Game implements IGame {
 	}
 
 	/**
-	 * Método que inicia la partida con jugadores y las barajas listas y se reparten
-	 * las cartas
+	 * Método que inicia la partida preparando jugadores y las barajas, se reparten
+	 * las cartas y ejecuta las rondas hasta que la partida termine
 	 */
 
 	private void startGame() {
@@ -120,37 +120,59 @@ public class Game implements IGame {
 	}
 
 	/**
-	 * Método que prepara la ronda para los jugadores
+	 * Método que gestiona una ronda completa, ejecutandose los turnos de los
+	 * jugadores hasta que alguno cierre
 	 */
 
 	private void startRound() {
 		int turn = 1, closerIndex = -1;
-		IEntity player;
+
 		canClose = false;
 		gameOver = false;
-		long playersLeft;
 
 		while (closerIndex == -1) {
-			menu.showTurn(turn);
 			if (turn >= 2) {
 				canClose = true;
 			}
-
-			for (int i = 0; i < players.size(); i++) {
-
-				player = players.get(i);
-
-				if (player.getStatus() == EntityStatus.INSIDE && startTurn(player)) {
-					closerIndex = i;
-					i = players.size();
-				}
-			}
+			closerIndex = playTurn(turn);
 			turn++;
 		}
 
 		roundScore(closerIndex);
 		menu.showRoundEnd();
+		checkGameOver(closerIndex);
 
+	}
+
+	/**
+	 * Método que ejecuta el turno de cada jugador que siga dentro de la partida
+	 * 
+	 * @param turn Número del turno actual
+	 * @return Índice del jugador que haya cerrado la ronda, o -1 si no es nadie
+	 */
+
+	private int playTurn(int turn) {
+		IEntity player;
+		for (int i = 0; i < players.size(); i++) {
+
+			player = players.get(i);
+
+			if (player.getStatus() == EntityStatus.INSIDE && startTurn(player, turn)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * Método que comprueba si la partida ha terminado, ya sea por chinchón o por
+	 * quedar solo un jugador dentro de la partida
+	 * 
+	 * @param closerIndex Índice del jugador que ha cerrado la ronda
+	 */
+
+	private void checkGameOver(int closerIndex) {
+		long playersLeft;
 		playersLeft = players.stream().filter(p -> p.getStatus() == EntityStatus.INSIDE).count();
 
 		if (winForChinchon || playersLeft <= 1) {
@@ -164,9 +186,11 @@ public class Game implements IGame {
 	}
 
 	/**
+	 * Método que devuelve el ganador de la partida, ya sea porque alguien ha hecho
+	 * un chinchón o el jugador con menos puntos
 	 * 
-	 * @param closerIndex
-	 * @return
+	 * @param closerIndex Índice del jugador que ha cerrado la ronda
+	 * @return Apodo del jugador ganador
 	 */
 
 	private String getWinner(int closerIndex) {
@@ -180,15 +204,21 @@ public class Game implements IGame {
 	}
 
 	/**
-	 * Método que define los turnos de un jugador, diviendose en robó, decidir si
-	 * descartar o cerrar la ronda
+	 * Método que gestiona el turno de un jugador, dividiéndose en fase de robo y
+	 * fase de decidir si descartar o cerrar la ronda
 	 * 
 	 * @param player Jugador que jugará ese turno
-	 * @return true/false dependiendo de la acción del jugador
+	 * @param turn   Número del turno actual
+	 * @return true/false dependiendo de si el jugador cierra la ronda o no
 	 */
 
-	private boolean startTurn(IEntity player) {
-		menu.showPlayerTurn(player.getNickname());
+	private boolean startTurn(IEntity player, int turn) {
+		if (!(player instanceof ICpu)) {
+			menu.fakeClearConsole();
+			menu.showTurn(turn);
+			menu.showPlayerTurn(player.getNickname());
+		}
+
 		drawPhase(player);
 
 		if (decisionPhase(player)) {
@@ -200,33 +230,77 @@ public class Game implements IGame {
 	}
 
 	/**
-	 * Método que verifica si el jugador puede o no cerrar en ese turno
+	 * Método que verifica si el jugador puede o no cerrar en ese turno y lo
+	 * gestiona dependiendo si es un jugador o una CPU
 	 * 
 	 * @param player Jugador que va a cerrar en el turno
 	 * @return true/false si el jugador cierra de manera correcta o no
 	 */
 
-	// TODO: Terminar esta madre
-
 	private boolean closeTurn(IEntity player) {
+
+		if (player instanceof ICpu cpu) {
+			return closeTurnCpu(cpu);
+		}
 
 		if (combinationLoop(player)) {
 			if (!winForChinchon) {
 				menu.showPerfectClosing();
 			}
-			player.getHand().clear();
+			player.clearHand();
 			player.endTempMode();
 			return true;
 		}
 
+		return resolveClosing(player);
+	}
+
+	/**
+	 * Método que gestiona el cierre de la ronda para la CPU, declarando sus
+	 * combinaciones y descartando la carta con mayor valor permitido
+	 * 
+	 * @param cpu CPU que cerrará la ronda
+	 * @return true/false si la CPU cierra correctamente o no
+	 */
+
+	private boolean closeTurnCpu(ICpu cpu) {
+		cpu.declareCombinations();
+
+		int val;
+		List<Card> handCpu = cpu.getHand();
+		int worstIndex = -1;
+		for (int i = 0; i < handCpu.size(); i++) {
+			val = handCpu.get(i).type().getScoreValue();
+			if (val <= 5) {
+				if (worstIndex == -1 || val > handCpu.get(worstIndex).type().getScoreValue()) {
+					worstIndex = i;
+				}
+			}
+		}
+		if (worstIndex == -1) {
+			cpu.clearHand();
+			return true;
+		}
+		deckCard.addCardInDiscard(cpu.discard(worstIndex));
+		return true;
+	}
+
+	/**
+	 * Método que resuelve el cierre de la ronda para un jugador humano, comprobando
+	 * las cartas sobrantes y gestionando los distintos casos de cierre
+	 * 
+	 * @param player Jugador que cerrará la ronda
+	 * @return true/false si el jugador cierra correctamente o no
+	 */
+
+	private boolean resolveClosing(IEntity player) {
 		List<Card> remaining = player.getTempHand();
-		int points, index, valueCard;
-		Card leftover, keptCard;
+		int originalSize = player.getHand().size();
 
 		// Caso 1: Cierre perfecto, -10 puntos
 		if (remaining.isEmpty()) {
 			menu.showPerfectClosing();
-			player.getHand().clear();
+			player.clearHand();
 			player.endTempMode();
 			return true;
 		}
@@ -234,19 +308,34 @@ public class Game implements IGame {
 		// Caso 2: Cierre con más de dos cartas en mano
 		if (remaining.size() > 2) {
 			player.endTempMode();
-			if (remaining.size() == player.getHand().size()) {
-
-			} else {
+			if (remaining.size() != originalSize) {
 				menu.errorCombination();
 			}
 
 			return false;
 		}
 
+		return closeWithLeftover(player, remaining);
+	}
+
+	/**
+	 * Método que gestiona el cierre de la ronda cuando al jugador le sobran una o
+	 * dos cartas tras realizar sus combinaciones
+	 * 
+	 * @param player    Jugador que cerrará la ronda
+	 * @param remaining Cartas sobrantes tras las combinaciones
+	 * @return true/false si el jugador cierra correctamente o no
+	 */
+
+	private boolean closeWithLeftover(IEntity player, List<Card> remaining) {
+		int points, index, valueCard;
+		Card leftover, keptCard;
+
 		// Caso 3: Cierre con 1 o 2 cartas
 		if (remaining.size() == 1) {
 			index = 0;
 			leftover = remaining.get(index);
+			menu.showClosingCard(leftover.toString());
 		} else {
 			menu.showHand(player);
 			index = menu.selectClosingCard() - 1;
@@ -257,12 +346,13 @@ public class Game implements IGame {
 
 		if (valueCard < 1 || valueCard > 5) {
 			player.endTempMode();
-			menu.errorCombination();
+			menu.errorCloseCard();
 			return false;
 		}
 
 		keptCard = remaining.size() == 1 ? null : remaining.get(index == 0 ? 1 : 0);
 		points = keptCard == null ? 0 : player.calculateScore(List.of(keptCard));
+
 		if (player.getScore() + points >= maxPoints) { // Solo se puede cerrar si no se supera maxPoints
 			player.endTempMode();
 			menu.errorPoints();
@@ -270,24 +360,21 @@ public class Game implements IGame {
 		}
 
 		deckCard.addCardInDiscard(leftover);
-		player.getHand().clear();
+		player.clearHand();
 		if (keptCard != null) {
 			player.getHand().add(keptCard);
 		}
 		player.endTempMode();
 		return true;
-
 	}
 
 	/**
-	 * Método que busca las cartas combinadas del jugador dependiendo de su índice
+	 * Método que obtiene las cartas de la mano del jugador a partir de sus índices
 	 * 
 	 * @param hand    Mano del jugador
-	 * @param indexes Índices
-	 * @return
+	 * @param indexes Índices de las cartas seleccionadas
+	 * @return Lista de cartas correspondientes a los índices proporcionados
 	 */
-
-	// TODO: Terminar esta madre
 
 	private List<Card> getCardsFromIndexes(List<Card> hand, List<Integer> indexes) {
 		List<Card> cards = new ArrayList<>();
@@ -302,49 +389,45 @@ public class Game implements IGame {
 	}
 
 	/**
-	 * Método
+	 * Método que solicita al jugador los índices de las cartas que desea combinar
 	 * 
-	 * @param player
-	 * @return
+	 * @param player Jugador al que se le piden los índices
+	 * @return Lista de índices seleccionados por el jugador
 	 */
 
-	// TODO: Terminar esta madre
-
 	private List<Integer> askForIndexes(IEntity player) {
-		List<Integer> indexes = new ArrayList<>();
-		int index;
-		boolean valid;
-		String input;
-		String[] parts;
-
 		menu.showHand(player);
-		input = menu.listCards();
+		String input = menu.listCards();
 
 		if (input.trim().isEmpty()) {
-			return indexes;
+			return new ArrayList<>();
 		}
 
-		parts = input.trim().split("\\s+");
-		valid = true;
+		return parseIndexes(input.trim().split("\\s+"), player.getTempHand().size());
+	}
+
+	/**
+	 * Método que parsea y valida los índices introducidos por el jugador respecto
+	 * al tamaño de la mano temporal
+	 *
+	 * @param parts    Array de cadenas con los índices introducidos
+	 * @param handSize Tamaño de la mano temporal del jugador
+	 * @return Lista de índices válidos introducidos por el jugador
+	 */
+
+	private List<Integer> parseIndexes(String[] parts, int handSize) {
+		List<Integer> indexes = new ArrayList<>();
+		boolean valid = true;
+		int value;
 
 		for (String p : parts) {
-
 			try {
-
-				int value = Integer.parseInt(p);
-
-				if (value < 1 || value > player.getTempHand().size()) {
+				value = Integer.parseInt(p);
+				if (value < 1 || value > handSize || indexes.contains(value - 1)) {
 					valid = false;
 				} else {
-					index = value - 1;
-
-					if (!indexes.contains(index)) {
-						indexes.add(index);
-					} else {
-						valid = false;
-					}
+					indexes.add(value - 1);
 				}
-
 			} catch (NumberFormatException e) {
 				valid = false;
 			}
@@ -359,57 +442,35 @@ public class Game implements IGame {
 	}
 
 	/**
+	 * Método que gestiona el bucle de combinaciones del jugador, permitiéndole
+	 * introducir combinaciones hasta que no pueda o no quiera continuar
 	 * 
-	 * @param player
+	 * @param player Jugador que realizará las combinaciones
+	 * @return true/false si el jugador ha realizado un chinchón o no
 	 */
 
 	private boolean combinationLoop(IEntity player) {
 		player.startTempMode();
-		List<Integer> indexes, sortedIndexes;
-		List<Card> selectedCards;
-		int combination;
 		boolean canContinue = true, combinationValid;
 
-		while (canContinue) {
-
+		while (canContinue && player.getTempHand().size() > 2) {
 			combinationValid = false;
 
 			while (!combinationValid) {
-
-				indexes = askForIndexes(player);
+				List<Integer> indexes = askForIndexes(player);
 
 				if (indexes.isEmpty()) {
 					combinationValid = true;
 					canContinue = false;
-
 				} else {
-
-					selectedCards = getCardsFromIndexes(player.getTempHand(), indexes);
-					combination = detectCombination(player, selectedCards);
-
-					if (combination == 0) {
-						menu.errorCombination();
-
-					} else {
-
-						sortedIndexes = new ArrayList<>(indexes);
-						sortedIndexes.sort(Collections.reverseOrder());
-
-						for (int i : sortedIndexes) {
-							player.getTempHand().remove(i);
-						}
-
-						if (combination == 3 && selectedCards.size() == 7) {
-							winForChinchon = true;
-							return true;
-						}
-
-						combinationValid = true;
+					combinationValid = processCombination(player, indexes);
+					if (winForChinchon) {
+						return true;
 					}
 				}
 			}
 
-			if (player.getTempHand().size() <= 2) {
+			if (player.getTempHand().size() <= 1) {
 				canContinue = false;
 			}
 		}
@@ -417,13 +478,59 @@ public class Game implements IGame {
 	}
 
 	/**
+	 * Método que procesa una combinación introducida por el jugador, validándola y
+	 * eliminando las cartas combinadas de la mano temporal
 	 * 
-	 * @param player
-	 * @param cards
-	 * @return
+	 * @param player  Jugador que realiza la combinación
+	 * @param indexes Índices de las cartas seleccionadas para la combinación
+	 * @return true/false si la combinación es válida o no
 	 */
 
-	public int detectCombination(IEntity player, List<Card> cards) {
+	private boolean processCombination(IEntity player, List<Integer> indexes) {
+		int combination;
+		List<Card> selectedCards;
+
+		selectedCards = getCardsFromIndexes(player.getTempHand(), indexes);
+
+		if (selectedCards.size() >= player.getTempHand().size() && player.getTempHand().size() != 7) {
+			menu.errorCombination();
+			return false;
+		}
+
+		combination = detectCombination(player, selectedCards);
+
+		if (combination == 0) {
+			menu.errorCombination();
+			return false;
+		}
+
+		List<Integer> sortedIndexes = new ArrayList<>(indexes);
+		sortedIndexes.sort(Collections.reverseOrder());
+		for (int i : sortedIndexes) {
+			player.getTempHand().remove(i);
+		}
+
+		if (combination == 3 && selectedCards.size() == 7) {
+			winForChinchon = true;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Método que detecta el tipo de combinación formada por las cartas
+	 * seleccionadas, comprobando si es un chinchón, escalera o serie
+	 *
+	 * @param player Jugador que realiza la combinación
+	 * @param cards  Cartas seleccionadas para la combinación
+	 * @return Número que indica el tipo de combinación:<br>
+	 *         Opción 1: Serie<br>
+	 *         Opción 2: Escalera<br>
+	 *         Opción 3: Chinchón<br>
+	 *         Opción 0: Combinación inválida
+	 */
+
+	private int detectCombination(IEntity player, List<Card> cards) {
 
 		if (player.validateCombination(cards, 3)) {
 			return 3;
@@ -437,22 +544,30 @@ public class Game implements IGame {
 	}
 
 	/**
+	 * Método que gestiona la fase de declaración de combinaciones al final de la
+	 * ronda, tanto para jugadores humanos como para la CPU
 	 * 
-	 * @param player
+	 * @param player Jugador que declarará sus combinaciones
 	 */
 
 	private void declarePhase(IEntity player) {
-		combinationLoop(player);
+		if (player instanceof ICpu cpu) {
+			cpu.declareCombinations();
+		} else {
+			combinationLoop(player);
 
-		player.getHand().clear();
-		player.getHand().addAll(player.getTempHand());
-		player.endTempMode();
+			player.clearHand();
+			player.getHand().addAll(player.getTempHand());
+			player.endTempMode();
+		}
 	}
 
 	/**
+	 * Método que calcula y asigna la puntuación de cada jugador al finalizar la
+	 * ronda, comprobando si alguno ha sido eliminado por superar el límite de
+	 * puntos
 	 * 
-	 * @param closerIndex
-	 * @param player
+	 * @param closerIndex Índice del jugador que ha cerrado la ronda
 	 */
 
 	private void roundScore(int closerIndex) {
@@ -482,8 +597,10 @@ public class Game implements IGame {
 	}
 
 	/**
+	 * Método que gestiona la fase de robo del turno, permitiendo al jugador robar
+	 * del mazo principal o de la pila de descartes
 	 * 
-	 * @param player
+	 * @param player Jugador que robará la carta
 	 */
 
 	private void drawPhase(IEntity player) {
@@ -504,18 +621,21 @@ public class Game implements IGame {
 	}
 
 	/**
+	 * Método que gestiona la fase de decisión del turno, permitiendo al jugador
+	 * decidir si descartar o cerrar la ronda
 	 * 
-	 * @param player
-	 * @return
+	 * @param player Jugador que tomará la decisión
+	 * @return true/false si el jugador decide cerrar la ronda o no
 	 */
-
-	// TODO: Terminar esta madre
 
 	private boolean decisionPhase(IEntity player) {
 		int option;
 		boolean decisionMade;
 
-		if (player instanceof ICpu) {
+		if (player instanceof ICpu cpu) {
+			if (canClose && cpu.canClose()) {
+				return closeTurn(player);
+			}
 			return false;
 		}
 
@@ -545,19 +665,21 @@ public class Game implements IGame {
 	}
 
 	/**
+	 * Método que gestiona la fase de descarte del turno, eliminando una carta de la
+	 * mano del jugador y añadiéndola a la pila de descartes
 	 * 
-	 * @param player
+	 * @param player Jugador que descartará la carta
 	 */
 
 	private void discardPhase(IEntity player) {
 		int index;
 		Card cardToDiscard;
 
-		if (player instanceof Cpu cpu) { // CPU
-			index = cpu.chooseDiscard(); // Método Provisional
-			cardToDiscard = cpu.discard(index); // Método Provisional2
+		if (player instanceof Cpu cpu) {
+			index = cpu.chooseDiscard();
+			cardToDiscard = cpu.discard(index);
 
-		} else { // JUGADOR
+		} else {
 			menu.showHand(player);
 			index = menu.selectToDiscard() - 1;
 			cardToDiscard = player.discard(index);

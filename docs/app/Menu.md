@@ -1,5 +1,4 @@
 # MENU 
-*W I P*
 
 ## FUNCIÓN
 
@@ -190,15 +189,6 @@ public int selectToDiscard() {
 	}
 ```
 
-- *W I P*
-
-```java
-public int selectCombination() {
-		ci.writeLine("Seleccione que combinación deseas hacer:");
-		return ci.readIntInRange(1, 3, "1. Grupos\n2. Escalera\n3. Chinchón\n");
-	}
-```
-
 - Método que le pide el usuario que introduzca la combinación que desea.
     Este método devuelve la combinación realizada por el usuario.
 
@@ -215,6 +205,17 @@ public String listCards() {
 ```java
 public int selectClosingCard() {
 		return ci.readIntInRange(1, 2, "Seleccione si desea descartar la primera o la segunda carta para cerrar:");
+	}
+```
+
+- Método que le indica al usuario que carta ha sido descartar para cerrar la ronda. 
+Podemos encontrar los siguientes parametros:
+
+	- card: Carta descartada para cerrar.
+
+```java
+public void showClosingCard(String card) {
+		ci.writeLine(String.format("\nDescartas %s para cerrar la ronda.\n", card));
 	}
 ```
 
@@ -293,7 +294,7 @@ public void errorClose() {
 
 ```java
 public void errorCombination() {
-		ci.writeError("Combinación incorrecta.");
+		ci.writeError("Combinación incorrecta, por favor, intentelo de nuevo.\n");
 	}
 ```
 
@@ -301,7 +302,15 @@ public void errorCombination() {
 
 ```java
 public void errorPoints() {
-		ci.writeError("No puedes cerrar ya que vas a sobrepasar el límite de puntos.");
+		ci.writeError("No puedes cerrar ya que vas a sobrepasar el límite de puntos.\n");
+	}
+```
+
+- Método que le dice al usuario que no puede cerrar con una carta superior que 5.
+
+```java
+public void errorCloseCard() {
+		ci.writeError("No puedes cerrar con una carta que es mayor que 5.\n");
 	}
 ```
 

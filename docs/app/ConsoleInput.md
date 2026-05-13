@@ -58,18 +58,18 @@ Podemos encontrar los siguientes parametros:
     Este método devuelve el valor que confirma que es un número.
 
 ```java
-public int readInt(String message) {
+public int readInt(String info) {
+		writeLine(info);
 		int value = 0;
 		boolean error;
-		writeLine(message);
 		do {
 			try {
 				value = kb.nextInt();
 				error = false;
 			} catch (InputMismatchException e) {
-				System.out.printf(
-						"%sEl valor del integer debe ser de tipo númerico entero y comprendido entre el rango %d - %d.%s\n",
-						"\u001B[31m", Integer.MIN_VALUE, Integer.MAX_VALUE, "\u001B[0m");
+				writeError(String.format(
+						"El valor del integer debe ser de tipo númerico entero y comprendido entre el rango %d - %d.",
+						Integer.MIN_VALUE, Integer.MAX_VALUE));
 				error = true;
 			} finally {
 				cleanInput();
@@ -94,8 +94,8 @@ public int readIntGreaterOrEqualThan(int lowerBound, String message) {
 		do {
 			value = readInt(message);
 			if (value < lowerBound) {
-				System.out.printf("%sEl valor del integer debe ser mayor o igual que %d.%s\n", "\u001B[31m", lowerBound,
-						"\u001B[0m");
+				writeError(String.format("%sEl valor del integer debe ser mayor o igual que %d.%s\n", "\u001B[31m",
+						lowerBound, "\u001B[0m"));
 			}
 		} while (value < lowerBound);
 		return value;
@@ -117,8 +117,9 @@ public int readIntInRange(int lowerBound, int upperBound, String message) {
 		do {
 			value = readInt(message);
 			if (value < lowerBound || value > upperBound) {
-				System.out.printf("%sEl valor del integer debe estar comprendido entre %d y %d (ambos incluidos).%s\n",
-						"\u001B[31m", lowerBound, upperBound, "\u001B[0m");
+				writeError(String.format(
+						"%sEl valor del integer debe estar comprendido entre %d y %d (ambos incluidos).%s\n",
+						"\u001B[31m", lowerBound, upperBound, "\u001B[0m"));
 			}
 		} while (value < lowerBound || value > upperBound);
 		return value;
@@ -143,7 +144,7 @@ public char readChar(String message) {
 		do {
 			value = readString(message).toLowerCase();
 			if (value.trim().length() != 1) {
-				System.out.printf("%sEl valor del char debe ser de un único caracter.%s\n", "\u001B[31m", "\u001B[0m");
+				writeError(String.format("%sEl valor del char debe ser de un único caracter.%s\n", "\u001B[31m", "\u001B[0m"));
 			}
 		} while (value.trim().length() != 1);
 		return value.trim().charAt(0);
@@ -168,8 +169,9 @@ public String readString(String message) {
 		do {
 			value = kb.nextLine();
 			if (value.trim().isEmpty()) {
-				System.out.printf("%sNo puedes introducir una cadena vacía, debe contener al menos un caracter.%s\n",
-						"\u001B[31m", "\u001B[0m");
+				writeError(String.format(
+						"%sNo puedes introducir una cadena vacía, debe contener al menos un caracter.%s\n",
+						"\u001B[31m", "\u001B[0m"));
 			}
 		} while (value.trim().isEmpty());
 		return value;
@@ -192,7 +194,7 @@ public boolean readBooleanUsingChar(char affirmativeValue, char negativeValue, S
 		do {
 			value = readChar(message);
 			if (value != Character.toLowerCase(affirmativeValue) && value != Character.toLowerCase(negativeValue)) {
-				System.out.printf("%s%s%s\n", "\u001B[31m", error, "\u001B[0m");
+				writeError(String.format("%s%s%s\n", "\u001B[31m", error, "\u001B[0m"));
 			}
 		} while (value != Character.toLowerCase(affirmativeValue) && value != Character.toLowerCase(negativeValue));
 		if (value == Character.toLowerCase(affirmativeValue)) {
