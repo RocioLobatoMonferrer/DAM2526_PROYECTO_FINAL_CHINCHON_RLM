@@ -1,5 +1,4 @@
 # DECKCARD
-*W I P*
 
 ## FUNCIÓN
 
